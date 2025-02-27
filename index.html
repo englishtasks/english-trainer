@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grammar Master - Ағылшын тренажер</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6C5CE7;
+      --secondary: #00B894;
+      --accent: #FF7675;
+      --dark: #2d3436;
+      --light: #f8f9fa;
+    }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 20px rgba(108,92,231,0.2);
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tab {
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: white;
+      transition: 0.3s;
+      border: 2px solid var(--primary);
+      font-weight: 500;
+    }
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
+    .content-section {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+    .video-theory-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+    .video-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      height: fit-content;
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .theory-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border-left: 4px solid var(--secondary);
+    }
+    .tasks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .task-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      transition: 0.3s;
+      position: relative;
+    }
+    .task-card.correct {
+      border-left: 4px solid #00B894;
+      background: #f0fff4;
+    }
+    .task-card.wrong {
+      border-left: 4px solid #FF7675;
+      background: #fff5f5;
+    }
+    .task-number {
+      font-size: 14px;
+      color: var(--primary);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+    .task-question {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .task-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .task-input:disabled {
+      background: #f8f9fa;
+    }
+    .check-btn {
+      background: var(--secondary);
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      float: right;
+      transition: 0.3s;
+    }
+    .check-btn:disabled {
+      background: #ddd;
+      cursor: not-allowed;
+    }
+    .user-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .name-input {
+      padding: 8px 12px;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      width: 150px;
+      margin-right: 10px;
+    }
+    .score-display, .name-display {
+      margin-top: 10px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    .score-value {
+      color: var(--primary);
+      font-size: 1.2em;
+    }
+    @media (max-width: 768px) {
+      .video-theory-box {
+        grid-template-columns: 1fr;
+      }
+      .user-panel {
+        position: static;
+        margin-bottom: 20px;
+        width: fit-content;
+      }
+    }
+  </style>
+</head>
+<body onload="init()">
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-graduation-cap"></i> Grammar Master</h1>
+      <p>Ағылшын грамматикасын үйрену платформасы</p>
+    </div>
+
+    <div class="user-panel">
+      <input type="text" class="name-input" id="userName" placeholder="Атыңыз">
+      <button class="check-btn" onclick="saveName()">Сақтау</button>
+      <div class="name-display" id="displayName"></div>
+      <div class="score-display">Ұпай: <span class="score-value" id="totalScore">0</span></div>
+    </div>
+
+    <div class="tabs" id="tabsContainer"></div>
+    <div id="content"></div>
+  </div>
+
+  <script>
+    // Данные по грамматике
+    const grammarData = {
+      presentSimple: {
+        title: "Present Simple",
+        // Новое видео: https://youtu.be/E73T17dkqYg?si=ZKUo6jhm0X3j_ngJ
+        videoId: "E73T17dkqYg",
+        theory: `
+          <h3><i class="fas fa-lightbulb"></i> Present Simple</h3>
+          <p>Қолданылуы:</p>
+          <ul>
+            <li>Әдеттегі іс-әрекеттер</li>
+            <li>Жалпы ақиқаттар</li>
+            <li>Бекітілген бағдарламалар</li>
+          </ul>
+          <p>Мысалдар:</p>
+          <ul>
+            <li>I <strong>work</strong> every day</li>
+            <li>She <strong>reads</strong> books</li>
+            <li>We <strong>play</strong> football</li>
+          </ul>
+        `,
+        tasks: [
+          {q: "She ______ (read) books every evening.", a: "reads"},
+          {q: "We ______ (play) football on Saturdays.", a: "play"},
+          {q: "He ______ (watch) TV every night.", a: "watches"},
+          {q: "They ______ (go) to school by bus.", a: "go"},
+          {q: "I ______ (like) chocolate ice cream.", a: "like"},
+          {q: "My mother ______ (work) in a hospital.", a: "works"},
+          {q: "Cats ______ (sleep) during the day.", a: "sleep"},
+          {q: "The sun ______ (rise) in the east.", a: "rises"},
+          {q: "Students ______ (study) for exams.", a: "study"},
+          {q: "He ______ (brush) his teeth twice a day.", a: "brushes"},
+          {q: "We ______ (have) dinner at 7 PM.", a: "have"},
+          {q: "Birds ______ (fly) in the sky.", a: "fly"},
+          {q: "She ______ (teach) English at school.", a: "teaches"},
+          {q: "I ______ (drink) coffee every morning.", a: "drink"},
+          {q: "The train ______ (arrive) at 8 o'clock.", a: "arrives"},
+          // Дополнительные 15 заданий для Present Simple:
+          {q: "He ______ (enjoy) his job every day.", a: "enjoys"},
+          {q: "They ______ (work) hard every week.", a: "work"},
+          {q: "I ______ (prefer) tea over coffee.", a: "prefer"},
+          {q: "She ______ (drive) to work every morning.", a: "drives"},
+          {q: "We ______ (visit) our grandparents on Sundays.", a: "visit"},
+          {q: "The cat ______ (chase) the mouse.", a: "chases"},
+          {q: "He ______ (play) chess every evening.", a: "plays"},
+          {q: "I ______ (need) a break after work.", a: "need"},
+          {q: "They ______ (enjoy) long walks in the park.", a: "enjoy"},
+          {q: "She ______ (study) French in school.", a: "studies"},
+          {q: "We ______ (attend) meetings regularly.", a: "attend"},
+          {q: "He ______ (like) to read the newspaper every morning.", a: "likes"},
+          {q: "I ______ (write) letters to my friends often.", a: "write"},
+          {q: "They ______ (celebrate) festivals with enthusiasm.", a: "celebrate"},
+          {q: "She ______ (always/arrive) early to work.", a: "arrives"}
+        ]
+      },
+      presentContinuous: {
+        title: "Present Continuous",
+        // Видео: https://youtu.be/WGUQwFLZVn0?si=L9_qJc61yZgBLZ8V
+        videoId: "WGUQwFLZVn0",
+        theory: `
+          <h3><i class="fas fa-lightbulb"></i> Present Continuous</h3>
+          <p>Қолданылуы:</p>
+          <ul>
+            <li>Қазір болып жатқан іс-әрекеттер</li>
+            <li>Уақытша жағдайлар</li>
+            <li>Жуық болашақ</li>
+          </ul>
+          <p>Мысалдар:</p>
+          <ul>
+            <li>I <strong>am reading</strong> now</li>
+            <li>They <strong>are playing</strong> football</li>
+            <li>She <strong>is cooking</strong> dinner</li>
+          </ul>
+        `,
+        tasks: [
+          {q: "They ______ (play) football now.", a: "are playing"},
+          {q: "I ______ (read) a book at the moment.", a: "am reading"},
+          {q: "She ______ (cook) dinner right now.", a: "is cooking"},
+          {q: "We ______ (watch) TV this evening.", a: "are watching"},
+          {q: "He ______ (work) on his project currently.", a: "is working"},
+          {q: "The children ______ (sleep) now.", a: "are sleeping"},
+          {q: "You ______ (learn) English this year.", a: "are learning"},
+          {q: "It ______ (rain) outside at present.", a: "is raining"},
+          {q: "They ______ (build) a new house these days.", a: "are building"},
+          {q: "I ______ (write) an email right now.", a: "am writing"},
+          {q: "She ______ (study) for exams this week.", a: "is studying"},
+          {q: "We ______ (plan) our vacation currently.", a: "are planning"},
+          {q: "He ______ (drive) to work at the moment.", a: "is driving"},
+          {q: "The dog ______ (bark) loudly now.", a: "is barking"},
+          {q: "You ______ (improve) your skills.", a: "are improving"},
+          // Дополнительные 15 заданий для Present Continuous:
+          {q: "The baby ______ (cry) in the crib.", a: "is crying"},
+          {q: "We ______ (have) a meeting right now.", a: "are having"},
+          {q: "They ______ (dance) at the party.", a: "are dancing"},
+          {q: "I ______ (study) for my exams currently.", a: "am studying"},
+          {q: "She ______ (drive) to work at the moment.", a: "is driving"},
+          {q: "The birds ______ (sing) in the garden.", a: "are singing"},
+          {q: "He ______ (talk) on the phone.", a: "is talking"},
+          {q: "You ______ (wear) a new outfit today.", a: "are wearing"},
+          {q: "The chef ______ (prepare) a special dish.", a: "is preparing"},
+          {q: "We ______ (decorate) the room for the party.", a: "are decorating"},
+          {q: "The dog ______ (chase) its tail.", a: "is chasing"},
+          {q: "They ______ (build) a sandcastle on the beach.", a: "are building"},
+          {q: "I ______ (plan) a surprise for you.", a: "am planning"},
+          {q: "She ______ (enjoy) the beautiful sunset.", a: "is enjoying"},
+          {q: "He ______ (exercise) at the gym now.", a: "is exercising"}
+        ]
+      },
+      pastSimple: {
+        title: "Past Simple",
+        // Видео: https://youtu.be/hRDyposu57s?si=Pt0-druHqsLAAPwu
+        videoId: "hRDyposu57s",
+        theory: `
+          <h3><i class="fas fa-lightbulb"></i> Past Simple</h3>
+          <p>Қолданылуы:</p>
+          <ul>
+            <li>Өткенде аяқталған іс-әрекеттер</li>
+            <li>Өткен уақыттағы бітіп қалған оқиғалар</li>
+          </ul>
+          <p>Мысалдар:</p>
+          <ul>
+            <li>I <strong>worked</strong> yesterday</li>
+            <li>She <strong>visited</strong> Paris last year</li>
+            <li>We <strong>played</strong> football</li>
+          </ul>
+        `,
+        tasks: [
+          {q: "I ______ (go) to school yesterday.", a: "went"},
+          {q: "She ______ (visit) her grandmother last week.", a: "visited"},
+          {q: "We ______ (watch) that movie last night.", a: "watched"},
+          {q: "They ______ (play) football yesterday.", a: "played"},
+          {q: "He ______ (finish) work at 5 PM.", a: "finished"},
+          {q: "I ______ (buy) a new car last month.", a: "bought"},
+          {q: "She ______ (write) a letter yesterday.", a: "wrote"},
+          {q: "We ______ (see) that film last year.", a: "saw"},
+          {q: "They ______ (eat) dinner at 8 PM.", a: "ate"},
+          {q: "He ______ (drink) coffee this morning.", a: "drank"},
+          {q: "I ______ (take) a shower an hour ago.", a: "took"},
+          {q: "She ______ (read) the book last week.", a: "read"},
+          {q: "We ______ (have) a meeting yesterday.", a: "had"},
+          {q: "He ______ (make) breakfast yesterday.", a: "made"},
+          {q: "They ______ (leave) the party early.", a: "left"},
+          // Дополнительные 15 заданий для Past Simple:
+          {q: "We ______ (visit) the museum last weekend.", a: "visited"},
+          {q: "She ______ (buy) a new dress yesterday.", a: "bought"},
+          {q: "He ______ (finish) his homework last night.", a: "finished"},
+          {q: "They ______ (arrive) late to the meeting.", a: "arrived"},
+          {q: "I ______ (see) a shooting star last night.", a: "saw"},
+          {q: "The team ______ (win) the match on Friday.", a: "won"},
+          {q: "She ______ (forget) her umbrella at home.", a: "forgot"},
+          {q: "He ______ (cook) dinner for his family.", a: "cooked"},
+          {q: "We ______ (take) a taxi to the airport.", a: "took"},
+          {q: "They ______ (clean) the house on Saturday.", a: "cleaned"},
+          {q: "I ______ (read) an interesting article yesterday.", a: "read"},
+          {q: "She ______ (find) a lost wallet on the street.", a: "found"},
+          {q: "He ______ (make) a mistake in his report.", a: "made"},
+          {q: "We ______ (enjoy) the concert last night.", a: "enjoyed"},
+          {q: "They ______ (leave) their bags at the reception.", a: "left"}
+        ]
+      },
+      pastPerfect: {
+        title: "Past Perfect",
+        // Видео: https://youtu.be/GWRLQqlKt20?si=GWqaTsFK3Tbdg6wd
+        videoId: "GWRLQqlKt20",
+        theory: `
+          <h3><i class="fas fa-lightbulb"></i> Past Perfect</h3>
+          <p>Қолданылуы:</p>
+          <ul>
+            <li>Өткен уақытта бір іс-әрекет екіншісіне дейін аяқталған</li>
+            <li>Өткен оқиғалардың реті</li>
+          </ul>
+          <p>Мысалдар:</p>
+          <ul>
+            <li>I <strong>had finished</strong> work before he came</li>
+            <li>She <strong>had already left</strong> when I arrived</li>
+            <li>We <strong>had eaten</strong> before the movie started</li>
+          </ul>
+        `,
+        tasks: [
+          {q: "She ______ (finish) work before he came.", a: "had finished"},
+          {q: "I ______ (already/leave) when you called.", a: "had already left"},
+          {q: "They ______ (eat) before the meeting started.", a: "had eaten"},
+          {q: "We ______ (not/see) that movie before yesterday.", a: "had not seen"},
+          {q: "He ______ (just/go) home when I arrived.", a: "had just gone"},
+          {q: "By the time you woke up, I ______ (make) breakfast.", a: "had made"},
+          {q: "She ______ (never/visit) London before last year.", a: "had never visited"},
+          {q: "They ______ (complete) the project before deadline.", a: "had completed"},
+          {q: "I ______ (not/be) there before that day.", a: "had not been"},
+          {q: "The train ______ (already/leave) when we arrived.", a: "had already left"},
+          {q: "He ______ (forget) his keys before leaving home.", a: "had forgotten"},
+          {q: "We ______ (just/finish) dinner when guests arrived.", a: "had just finished"},
+          {q: "She ______ (read) the book before watching the movie.", a: "had read"},
+          {q: "They ______ (not/meet) before the conference.", a: "had not met"},
+          {q: "By 2020, I ______ (live) here for 10 years.", a: "had lived"},
+          // Дополнительные 15 заданий для Past Perfect:
+          {q: "She ______ (complete) her assignment before the deadline.", a: "had completed"},
+          {q: "I ______ (finish) my work before they arrived.", a: "had finished"},
+          {q: "They ______ (finalize) the report before the meeting.", a: "had finalized"},
+          {q: "He ______ (pack) his bags before the trip.", a: "had packed"},
+          {q: "We ______ (decide) to leave before the rain started.", a: "had decided"},
+          {q: "She ______ (call) you before the party started.", a: "had called"},
+          {q: "I ______ (realize) my mistake after the event.", a: "had realized"},
+          {q: "They ______ (complete) the project before the deadline.", a: "had completed"},
+          {q: "He ______ (drive) for hours before he took a break.", a: "had driven"},
+          {q: "We ______ (experience) many challenges before we succeeded.", a: "had experienced"},
+          {q: "She ______ (not/finish) her meal before leaving.", a: "had not finished"},
+          {q: "I ______ (forget) to lock the door before I left.", a: "had forgotten"},
+          {q: "They ______ (already/start) the game when we arrived.", a: "had already started"},
+          {q: "He ______ (never/see) such a beautiful place before.", a: "had never seen"},
+          {q: "We ______ (just/arrive) when the show began.", a: "had just arrived"}
+        ]
+      }
+    };
+
+    // Система пользователя (данные всегда инициализируются заново)
+    let user = {
+      name: '',
+      progress: {
+        presentSimple: { score: 0, completed: [] },
+        presentContinuous: { score: 0, completed: [] },
+        pastSimple: { score: 0, completed: [] },
+        pastPerfect: { score: 0, completed: [] }
+      }
+    };
+
+    // Функция сохранения имени (данные не сохраняются между сессиями)
+    function saveName() {
+      const nameInput = document.getElementById("userName").value.trim();
+      if(nameInput !== "") {
+        user.name = nameInput;
+        document.getElementById("displayName").textContent = "Сәлем, " + user.name;
+      }
+    }
+
+    // Обновление общего счёта
+    function updateTotalScore() {
+      const total = Object.values(user.progress).reduce((sum, tense) => sum + tense.score, 0);
+      document.getElementById("totalScore").textContent = total;
+    }
+
+    // Обновление счёта для конкретного времени в карточке теории
+    function updateTenseScore(tense) {
+      const container = document.querySelector(".theory-card");
+      if(container) {
+        container.querySelector(".score-display").innerHTML = grammarData[tense].title + " ұпайы: <span class='score-value'>" + user.progress[tense].score + "</span>";
+      }
+    }
+
+    // Создание карточек заданий
+    function createTasks(tense) {
+      const tasksGrid = document.getElementById("tasksGrid");
+      tasksGrid.innerHTML = "";
+      grammarData[tense].tasks.forEach((task, index) => {
+        const taskCard = document.createElement("div");
+        taskCard.className = "task-card";
+        if(user.progress[tense].completed.includes(index)) {
+          taskCard.classList.add("correct");
+        }
+        taskCard.innerHTML = `
+          <div class="task-number">#${index + 1}</div>
+          <div class="task-question">${task.q}</div>
+          <input type="text" class="task-input" id="task-${tense}-${index}" ${user.progress[tense].completed.includes(index) ? "disabled" : ""}>
+          <button class="check-btn" id="btn-${tense}-${index}" onclick="checkAnswer('${tense}', ${index})" ${user.progress[tense].completed.includes(index) ? "disabled" : ""}>Тексеру</button>
+        `;
+        tasksGrid.appendChild(taskCard);
+      });
+    }
+
+    // Проверка ответа
+    function checkAnswer(tense, index) {
+      const inputEl = document.getElementById(`task-${tense}-${index}`);
+      const btnEl = document.getElementById(`btn-${tense}-${index}`);
+      const userAnswer = inputEl.value.trim().toLowerCase();
+      const correctAnswer = grammarData[tense].tasks[index].a.toLowerCase();
+
+      if(userAnswer === correctAnswer) {
+        inputEl.disabled = true;
+        btnEl.disabled = true;
+        inputEl.parentElement.classList.add("correct");
+        if(!user.progress[tense].completed.includes(index)) {
+          user.progress[tense].completed.push(index);
+          user.progress[tense].score += 1;
+          updateTenseScore(tense);
+          updateTotalScore();
+        }
+      } else {
+        inputEl.parentElement.classList.add("wrong");
+      }
+    }
+
+    // Создание вкладок
+    function createTabs() {
+      const tabsContainer = document.getElementById("tabsContainer");
+      tabsContainer.innerHTML = "";
+      Object.entries(grammarData).forEach(([key, data]) => {
+        const tab = document.createElement("div");
+        tab.className = "tab";
+        tab.textContent = data.title;
+        tab.onclick = () => showContent(key);
+        tabsContainer.appendChild(tab);
+      });
+    }
+
+    // Отображение содержимого для выбранного времени
+    function showContent(tense) {
+      const data = grammarData[tense];
+      const progress = user.progress[tense];
+
+      const contentHTML = `
+        <div class="content-section">
+          <div class="video-theory-box">
+            <div class="video-card">
+              <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/${data.videoId}" allowfullscreen></iframe>
+              </div>
+            </div>
+            <div class="theory-card">
+              ${data.theory}
+              <div class="score-display">${data.title} ұпайы: <span class="score-value">${progress.score}</span></div>
+            </div>
+          </div>
+          <div class="tasks-grid" id="tasksGrid"></div>
+        </div>
+      `;
+      document.getElementById("content").innerHTML = contentHTML;
+      createTasks(tense);
+      setActiveTab(tense);
+    }
+
+    // Установка активной вкладки
+    function setActiveTab(tense) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      const tabs = document.getElementById("tabsContainer").children;
+      for (let tab of tabs) {
+        if(tab.textContent.trim() === grammarData[tense].title) {
+          tab.classList.add("active");
+        }
+      }
+    }
+
+    // Инициализация (данные не сохраняются между сессиями)
+    function init() {
+      // Каждый раз при заходе создаётся новая сессия: имя и баллы сброшены
+      user = {
+        name: '',
+        progress: {
+          presentSimple: { score: 0, completed: [] },
+          presentContinuous: { score: 0, completed: [] },
+          pastSimple: { score: 0, completed: [] },
+          pastPerfect: { score: 0, completed: [] }
+        }
+      };
+      // Очищаем поле для имени
+      document.getElementById("userName").value = "";
+      document.getElementById("displayName").textContent = "";
+      createTabs();
+      showContent('presentSimple');
+      updateTotalScore();
+    }
+  </script>
+</body>
+</html>
